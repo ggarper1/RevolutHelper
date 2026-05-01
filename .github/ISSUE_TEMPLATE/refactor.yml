@@ -1,0 +1,7 @@
+name: Refactor
+description: Refactor
+labels: ["refactor"]
+body:
+  - type: textarea
+    id: description
+    attributes: { label: Description }

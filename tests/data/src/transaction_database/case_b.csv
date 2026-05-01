@@ -1,0 +1,4 @@
+Type,Product,Started Date,Completed Date,Description,Amount,Fee,Currency,State,Balance
+Card,Current,2026-02-28 20:00:00,2026-02-28 20:00:01,Gas Station,-50.0,0.0,EUR,COMPLETED,600.0
+Transfer,Current,2026-03-01 09:00:00,2026-03-01 09:00:01,Monthly Salary,2500.0,0.0,EUR,COMPLETED,2500.0
+Transfer,Current,2026-03-05 10:30:00,2026-03-05 10:30:05,Rent Payment,-800.0,0.0,EUR,COMPLETED,1700.0

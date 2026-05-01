@@ -1,0 +1,7 @@
+data/*
+temp.csv
+
+__pycache__/
+
+.venv/
+

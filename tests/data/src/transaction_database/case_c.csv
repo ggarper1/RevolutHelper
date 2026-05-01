@@ -1,0 +1,3 @@
+Type,Product,Started Date,Completed Date,Description,Amount,Fee,Currency,State,Balance
+Transfer,Current,2026-03-01 09:00:00,2026-03-01 09:00:01,Monthly Salary,2500.0,0.0,EUR,COMPLETED,2500.0
+Transfer,Current,2026-03-08 18:20:00,2026-03-08 18:20:01,Bizum to: Julia S.,-20.0,0.0,EUR,COMPLETED,1680.0

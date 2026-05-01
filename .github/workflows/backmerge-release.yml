@@ -1,0 +1,116 @@
+name: Backmerge main -> develop on release merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [ main ]
+
+concurrency:
+  group: backmerge-release-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  backmerge:
+    if: >
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'main' &&
+      startsWith(github.event.pull_request.head.ref, 'release/')
+    runs-on: ubuntu-latest
+
+    env:
+      BASE_BRANCH: main
+      TARGET_BRANCH: develop
+      LABEL_BACKMERGE: backmerge
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure gh
+        run: |
+          command -v gh || { sudo apt-get update && sudo apt-get install -y gh; }
+
+      - name: Fetch branches
+        run: git fetch origin "${BASE_BRANCH}" "${TARGET_BRANCH}" --prune
+
+      - name: Determine if main is ahead of develop
+        id: diff
+        run: |
+          read _ RIGHT < <(git rev-list --left-right --count "origin/${TARGET_BRANCH}...origin/${BASE_BRANCH}")
+          echo "has_changes=$([ "$RIGHT" -gt 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if no changes
+        if: steps.diff.outputs.has_changes == 'false'
+        run: echo "✅ No hay cambios que backmergear."
+
+      - name: Compute temp branch
+        if: steps.diff.outputs.has_changes == 'true'
+        id: vars
+        run: |
+          SHA_SHORT=$(git rev-parse --short "origin/${BASE_BRANCH}")
+          echo "branch=backmerge/release-${PR_NUMBER}-${SHA_SHORT}" >> "$GITHUB_OUTPUT"
+
+      - name: Create & push temp branch
+        if: steps.diff.outputs.has_changes == 'true'
+        run: |
+          git switch --detach "origin/${BASE_BRANCH}"
+          git switch -c "${{ steps.vars.outputs.branch }}"
+          git push -u origin "${{ steps.vars.outputs.branch }}"
+
+      - name: Ensure label
+        if: steps.diff.outputs.has_changes == 'true'
+        run: |
+          gh label create "${LABEL_BACKMERGE}" \
+            --color BFD4F2 --description "Auto backmerge main → develop" || true
+
+      - name: Open PR main -> develop
+        if: steps.diff.outputs.has_changes == 'true'
+        id: openpr
+        run: |
+          BR="${{ steps.vars.outputs.branch }}"
+
+          # ¿Existe ya?
+          EXISTING=$(gh pr list --state open \
+            --head "$BR" \
+            --base "${TARGET_BRANCH}" \
+            --repo "$REPO" \
+            --json number --jq '.[0].number // empty')
+
+          if [ -z "$EXISTING" ]; then
+            # Crear PR (sin --json)
+            gh pr create \
+              --head "$BR" \
+              --base "${TARGET_BRANCH}" \
+              --title "Backmerge (post-release): main → develop (#${PR_NUMBER})" \
+              --body "Backmerge tras **release** mergeada en main." \
+              --label "${LABEL_BACKMERGE}" \
+              --repo "$REPO"
+
+            # Volver a consultar para obtener el número
+            CREATED=$(gh pr list --state open \
+              --head "$BR" \
+              --base "${TARGET_BRANCH}" \
+              --repo "$REPO" \
+              --json number --jq '.[0].number // empty')
+            echo "pr=$CREATED" >> "$GITHUB_OUTPUT"
+            echo "PR abierta: #$CREATED"
+          else
+            echo "pr=$EXISTING" >> "$GITHUB_OUTPUT"
+            echo "PR ya existente: #$EXISTING"
+          fi
+          
+      - name: Auto-merge backmerge PR (merge commit via PAT)
+        if: steps.diff.outputs.has_changes == 'true'
+        run: |
+          gh pr merge "${{ steps.openpr.outputs.pr }}" \
+            --merge \
+            --body "Backmerge automático post-release desde main." \
+            --repo "$REPO"

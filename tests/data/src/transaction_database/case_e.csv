@@ -1,0 +1,3 @@
+Type,Product,Started Date,Completed Date,Description,Amount,Fee,Currency,State,Balance
+Card,Current,2026-03-20 12:00:00,2026-03-20 12:00:02,Grocery Store,-35.2,0.0,EUR,COMPLETED,1487.3
+Transfer,Current,2026-03-25 15:30:00,2026-03-25 15:30:01,Electricity Bill,-90.0,0.0,EUR,COMPLETED,1397.3

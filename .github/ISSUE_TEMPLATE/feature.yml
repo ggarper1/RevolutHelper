@@ -1,0 +1,8 @@
+name: Feature
+description: Feature
+labels: ["feature"]
+body:
+  - type: textarea
+    id: desc
+    attributes: { label: Description }
+    validations: { required: true }
