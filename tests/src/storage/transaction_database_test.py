@@ -147,13 +147,36 @@ class Test_Transaction_Database:
                 s += f"{padding}{combined_dt[Transaction.START_DATE][idx]}, {combined_dt[Transaction.BALANCE][idx]:>5.2f}\n"
                 idx += 1
 
+            s += "\n"
+
+            for col in Transaction.columns():
+                idx = 0
+                while idx < min(len(registered_dt), len(combined_dt)):
+                    s += f"{type(registered_dt[col][idx])}\t{type(combined_dt[col][idx])}\n"
+                    idx += 1
+                while idx < len(registered_dt):
+                    s += f"{type(registered_dt[col][idx])}\n"
+                    idx += 1
+                while idx < len(combined_dt):
+                    s += f"{' ' * 22}\t{type(combined_dt[col][idx])}\n"
+                    idx += 1
+                s += "\n"
+
             return s
 
         def assert_all_transactions_added(
             db: Transaction_Database, registered_file_path, added_file_path
         ):
-            registered_dt = pd.read_csv(registered_file_path)
-            added_dt = pd.read_csv(added_file_path)
+            registered_dt = pd.read_csv(
+                registered_file_path,
+                parse_dates=[Transaction.START_DATE, Transaction.COMPLETED_DATE],
+                date_format="%Y-%m-%d %H:%M:%S",
+            )
+            added_dt = pd.read_csv(
+                added_file_path,
+                parse_dates=[Transaction.START_DATE, Transaction.COMPLETED_DATE],
+                date_format="%Y-%m-%d %H:%M:%S",
+            )
             combined = pd.concat(
                 [registered_dt, added_dt],
                 ignore_index=True,
@@ -164,6 +187,13 @@ class Test_Transaction_Database:
             ).reset_index(drop=True)
 
             assert db.dt.equals(sorted_combined), string_diff(
+                added_file_path, db.dt, sorted_combined
+            )
+            assert pd.read_csv(
+                Test_Transaction_Database.TEMP,
+                parse_dates=[Transaction.START_DATE, Transaction.COMPLETED_DATE],
+                date_format="%Y-%m-%d %H:%M:%S",
+            ).equals(sorted_combined), string_diff(
                 added_file_path, db.dt, sorted_combined
             )
 
