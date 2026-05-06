@@ -1,36 +1,9 @@
 from datetime import datetime
-from enum import Enum
 from os.path import isfile
 from typing import Tuple, Optional, cast
 import pandas as pd
 
-
-class Transaction(str, Enum):
-    TYPE = "Type"
-    PRODUCT = "Product"
-    START_DATE = "Started Date"
-    COMPLETED_DATE = "Completed Date"
-    DESCRIPTION = "Description"
-    AMOUNT = "Amount"
-    FEE = "Fee"
-    CURRENCY = "Currency"
-    STATE = "State"
-    BALANCE = "Balance"
-
-    @classmethod
-    def columns(cls):
-        return [
-            cls.TYPE,
-            cls.PRODUCT,
-            cls.START_DATE,
-            cls.COMPLETED_DATE,
-            cls.DESCRIPTION,
-            cls.AMOUNT,
-            cls.FEE,
-            cls.CURRENCY,
-            cls.STATE,
-            cls.BALANCE,
-        ]
+from src.storage.models.transaction import Transaction
 
 
 DATA_FILE_NAME = "./data/global.csv"
