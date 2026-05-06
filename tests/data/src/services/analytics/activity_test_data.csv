@@ -1,0 +1,7 @@
+Type,Product,Started Date,Completed Date,Description,Amount,Fee,Currency,State,Balance
+Transfer,Current,2025-12-21 22:15:01,2026-03-01 09:00:01,Coffee,-10.0,0.0,EUR,COMPLETED,0.0
+Transfer,Current,2026-03-01 09:00:01,2026-03-01 09:00:01,Initial Deposit,3000.0,0.0,EUR,COMPLETED,3000.0
+Card Payment,Current,2026-03-02 12:05:00,2026-03-02 12:05:00,Rent,-1000.0,0.0,EUR,COMPLETED,2000.0
+Card Payment,Current,2026-03-02 18:30:40,2026-03-02 18:31:00,Groceries,-50.0,0.0,EUR,COMPLETED,1950.0
+Transfer,Current,2026-03-15 10:04:04,2026-03-15 10:00:01,Gift,200.0,0.0,EUR,COMPLETED,2150.0
+Card Payment,Current,2026-04-01 08:20:07,2026-04-01 08:01:00,Subscription,-500.0,0.0,EUR,COMPLETED,1650.0

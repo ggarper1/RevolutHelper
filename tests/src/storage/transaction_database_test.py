@@ -12,7 +12,7 @@ from src.storage.transaction_database import (
 
 
 class Test_Transaction_Database:
-    TEMP = "./tests/data/src/transaction_database/temp.csv"
+    TEMP = "./tests/data/src/storage/transaction_database/temp.csv"
 
     @pytest.fixture(autouse=True)
     def clean_up(self):
@@ -51,7 +51,9 @@ class Test_Transaction_Database:
         #                      registered
         #
         # -----------------------------------------------------------------------------
-        REGISTERED_CSV_PATH = "./tests/data/src/transaction_database/registered.csv"
+        REGISTERED_CSV_PATH = (
+            "./tests/data/src/storage/transaction_database/registered.csv"
+        )
 
         # -----------------------------------------------------------------------------
         # CASE A — All transactions OLDER than base        Jan 05 ──── Jan 31
@@ -63,7 +65,7 @@ class Test_Transaction_Database:
         #    case_a   · gap ·  registered
         #
         # -----------------------------------------------------------------------------
-        CASE_A_CSV_PATH = "./tests/data/src/transaction_database/case_a.csv"
+        CASE_A_CSV_PATH = "./tests/data/src/storage/transaction_database/case_a.csv"
 
         # -----------------------------------------------------------------------------
         # CASE B — Starts before base, ends before base ends  Jan 28 ──── Feb 19
@@ -76,7 +78,7 @@ class Test_Transaction_Database:
         #             case_b  ^ overlap   case_b ends before registered
         #
         # -----------------------------------------------------------------------------
-        CASE_B_CSV_PATH = "./tests/data/src/transaction_database/case_b.csv"
+        CASE_B_CSV_PATH = "./tests/data/src/storage/transaction_database/case_b.csv"
 
         # -----------------------------------------------------------------------------
         # CASE C — Subset: fewer rows, all within base range   Feb 07 ──── Feb 17
@@ -89,7 +91,7 @@ class Test_Transaction_Database:
         #                           case_c (4 rows taken from registered)
         #
         # -----------------------------------------------------------------------------
-        CASE_C_CSV_PATH = "./tests/data/src/transaction_database/case_c.csv"
+        CASE_C_CSV_PATH = "./tests/data/src/storage/transaction_database/case_c.csv"
 
         # -----------------------------------------------------------------------------
         # CASE D — Starts within base, ends after base ends    Feb 03 ──── Feb 28
@@ -102,7 +104,7 @@ class Test_Transaction_Database:
         #                      overlap            case_d only
         #
         # -----------------------------------------------------------------------------
-        CASE_D_CSV_PATH = "./tests/data/src/transaction_database/case_d.csv"
+        CASE_D_CSV_PATH = "./tests/data/src/storage/transaction_database/case_d.csv"
 
         # -----------------------------------------------------------------------------
         # CASE E — All transactions NEWER than base            Feb 22 ──── Mar 07
@@ -115,7 +117,7 @@ class Test_Transaction_Database:
         #                                                  case_e
         #
         # -----------------------------------------------------------------------------
-        CASE_E_CSV_PATH = "./tests/data/src/transaction_database/case_e.csv"
+        CASE_E_CSV_PATH = "./tests/data/src/storage/transaction_database/case_e.csv"
 
         # -----------------------------------------------------------------------------
         # CASE F — Base is a strict subset of case_f          Jan 25 ──── Feb 28
@@ -128,7 +130,7 @@ class Test_Transaction_Database:
         #             case_f    overlap (all of registered)  case_f
         #
         # -----------------------------------------------------------------------------
-        CASE_F_CSV_PATH = "./tests/data/src/transaction_database/case_f.csv"
+        CASE_F_CSV_PATH = "./tests/data/src/storage/transaction_database/case_f.csv"
 
         def string_diff(case, registered_dt, combined_dt):
             s = f"\n{case}\nExpected length: {len(combined_dt)}, got: {len(registered_dt)}\n"
@@ -147,13 +149,36 @@ class Test_Transaction_Database:
                 s += f"{padding}{combined_dt[Transaction.START_DATE][idx]}, {combined_dt[Transaction.BALANCE][idx]:>5.2f}\n"
                 idx += 1
 
+            s += "\n"
+
+            for col in Transaction.columns():
+                idx = 0
+                while idx < min(len(registered_dt), len(combined_dt)):
+                    s += f"{type(registered_dt[col][idx])}\t{type(combined_dt[col][idx])}\n"
+                    idx += 1
+                while idx < len(registered_dt):
+                    s += f"{type(registered_dt[col][idx])}\n"
+                    idx += 1
+                while idx < len(combined_dt):
+                    s += f"{' ' * 22}\t{type(combined_dt[col][idx])}\n"
+                    idx += 1
+                s += "\n"
+
             return s
 
         def assert_all_transactions_added(
             db: Transaction_Database, registered_file_path, added_file_path
         ):
-            registered_dt = pd.read_csv(registered_file_path)
-            added_dt = pd.read_csv(added_file_path)
+            registered_dt = pd.read_csv(
+                registered_file_path,
+                parse_dates=[Transaction.START_DATE, Transaction.COMPLETED_DATE],
+                date_format="%Y-%m-%d %H:%M:%S",
+            )
+            added_dt = pd.read_csv(
+                added_file_path,
+                parse_dates=[Transaction.START_DATE, Transaction.COMPLETED_DATE],
+                date_format="%Y-%m-%d %H:%M:%S",
+            )
             combined = pd.concat(
                 [registered_dt, added_dt],
                 ignore_index=True,
@@ -164,6 +189,13 @@ class Test_Transaction_Database:
             ).reset_index(drop=True)
 
             assert db.dt.equals(sorted_combined), string_diff(
+                added_file_path, db.dt, sorted_combined
+            )
+            assert pd.read_csv(
+                Test_Transaction_Database.TEMP,
+                parse_dates=[Transaction.START_DATE, Transaction.COMPLETED_DATE],
+                date_format="%Y-%m-%d %H:%M:%S",
+            ).equals(sorted_combined), string_diff(
                 added_file_path, db.dt, sorted_combined
             )
 
