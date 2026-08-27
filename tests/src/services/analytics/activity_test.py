@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
+import pandas as pd
 
+from src.storage.models.transaction import Transaction
 from src.entities.time_granularity import Time_Granularity
 from src.storage.transaction_database import Transaction_Database
 from src.services.analytics.activity import get_grouped_incomes_outcomes
@@ -205,3 +207,17 @@ class Test_Get_Grouped_Incomes_Outcomes:
 
         for start_date, end_date, data in year_data:
             helper(db, Time_Granularity.YEAR, start_date, end_date, data)
+
+    def test_no_data(self):
+        db = Transaction_Database(
+            db_file_name=Test_Get_Grouped_Incomes_Outcomes.TEST_DATA
+        )
+
+        db.dt = pd.DataFrame(columns=Transaction.columns())
+
+        now = datetime.now()
+        result = get_grouped_incomes_outcomes(
+            db, now - timedelta(days=30), now, Time_Granularity.DAY
+        )
+        assert result.ok
+        assert result.data is not None and len(result.data) == 0

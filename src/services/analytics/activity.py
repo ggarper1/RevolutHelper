@@ -36,6 +36,9 @@ def get_grouped_incomes_outcomes(
     assert result.data is not None
     filtered = result.data
 
+    if filtered.empty:
+        return Result.success([])
+
     grouped = (
         filtered.assign(
             pos_vals=filtered[Transaction.AMOUNT].clip(lower=0),

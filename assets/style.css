@@ -1,0 +1,116 @@
+:root {
+  --bg-top: #f7fbff;
+  --bg-bottom: #e7f0fb;
+  --panel: rgba(255, 255, 255, 0.72);
+  --panel-strong: rgba(255, 255, 255, 0.9);
+  --border: rgba(255, 255, 255, 0.78);
+  --shadow: 0 24px 70px rgba(36, 63, 96, 0.14);
+  --text-main: #0b1728;
+  --text-muted: #536579;
+}
+
+.stApp {
+  background:
+    radial-gradient(circle at 10% 5%, rgba(255, 255, 255, 0.96), transparent 32rem),
+    radial-gradient(circle at 88% 18%, rgba(149, 199, 255, 0.28), transparent 30rem),
+    linear-gradient(160deg, var(--bg-top), var(--bg-bottom));
+  color: var(--text-main);
+}
+
+.block-container {
+  max-width: 1180px;
+  padding-top: 0.8rem;
+  padding-bottom: 1.2rem;
+}
+
+[data-testid="stHeader"] {
+  background: transparent;
+}
+
+[data-testid="stMetric"],
+[data-testid="stTabs"] [data-testid="stVerticalBlockBorderWrapper"],
+.stDataFrame,
+.stAlert {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px) saturate(125%);
+}
+
+.app-title {
+  margin: 0 0 0.35rem;
+  color: var(--text-main);
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  font-weight: 720;
+  letter-spacing: -0.06em;
+  line-height: 1;
+}
+
+[data-testid="stMetric"] {
+  border-radius: 18px;
+  padding: 0.62rem 0.8rem;
+}
+
+[data-testid="stMetricLabel"] p {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+[data-testid="stMetricValue"] {
+  color: var(--text-main);
+  letter-spacing: -0.03em;
+}
+
+.stDateInput,
+.stSelectbox,
+.stFileUploader {
+  border-radius: 16px;
+}
+
+[data-testid="stPopover"] > button {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--panel-strong);
+}
+
+[data-testid="stPopover"] > button svg {
+  display: none;
+}
+
+.stTabs [data-baseweb="tab-list"] {
+  gap: 0.35rem;
+}
+
+.stTabs [data-baseweb="tab"] {
+  border-radius: 999px;
+  padding: 0.4rem 1rem;
+}
+
+.stTabs [aria-selected="true"] {
+  background: var(--panel-strong);
+}
+
+.stAltairChart,
+.stDataFrame {
+  border-radius: 26px;
+  overflow: hidden;
+}
+
+.stAltairChart {
+  border: 1px solid var(--border);
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  padding: 0.55rem;
+}
+
+.stCaption,
+small,
+[data-testid="stMarkdownContainer"] p {
+  color: var(--text-muted);
+}
+
+footer,
+[data-testid="stStatusWidget"],
+[data-testid="stAppDeployButton"] {
+  display: none;
+}
