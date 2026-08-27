@@ -77,6 +77,23 @@
   display: none;
 }
 
+[data-testid="stPopover"] > button > div:last-child:not(:only-child) {
+  display: none;
+}
+
+[data-testid="stPopover"] > button {
+  justify-content: center;
+}
+
+button[data-testid="stPopoverButton"] [aria-hidden="true"],
+button[data-testid="stPopoverButton"] [data-testid="stIconMaterial"] {
+  display: none;
+}
+
+button[data-testid="stPopoverButton"] > div {
+  justify-content: center;
+}
+
 .stTabs [data-baseweb="tab-list"] {
   gap: 0.35rem;
 }
